@@ -14,6 +14,8 @@ RazorBlade takes Razor components and generates strongly-typed extension methods
 - 🔥 **htmx Compatible**: Return partial HTML views with ease
 - 🪶 **Lightweight**: No MVC or Blazor hosting overhead
 - ⚡ **Fast**: Direct component rendering without unnecessary middleware
+- 🎨 **Layout Support**: Optional layouts for full pages or partials
+- 📦 **View Models**: Map view model properties to component parameters
 
 ## Getting Started
 
@@ -132,6 +134,78 @@ app.MapGet("/items", async () =>
 {
     var items = new List<string> { "Apples", "Bananas", "Oranges" };
     var html = await ItemListExtensions.RenderItemListAsync("Shopping List", items);
+    return Results.Content(html, "text/html");
+});
+```
+
+### Layouts and Full Page Rendering
+
+Create a layout component for wrapping content:
+
+```razor
+@* Layout.razor *@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@Title</title>
+</head>
+<body>
+    @Body
+</body>
+</html>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "My App";
+    
+    [Parameter]
+    public RenderFragment Body { get; set; } = null!;
+}
+```
+
+Render a component with layout:
+
+```csharp
+app.MapGet("/page", async () =>
+{
+    var layoutParams = new Dictionary<string, object?> { { "Title", "My Page" } };
+    var html = await DemoPageExtensions.RenderDemoPageWithLayoutAsync<Layout>(layoutParams);
+    return Results.Content(html, "text/html");
+});
+```
+
+Or render as a partial (no layout) for htmx:
+
+```csharp
+app.MapGet("/page/partial", async () =>
+{
+    var html = await DemoPageExtensions.RenderDemoPageAsync();
+    return Results.Content(html, "text/html");
+});
+```
+
+### View Model Support
+
+Use view models to pass parameters to components:
+
+```csharp
+public class CardViewModel
+{
+    public string Title { get; set; } = "";
+    public string Content { get; set; } = "";
+    public string Footer { get; set; } = "";
+}
+
+app.MapGet("/card-vm/{title}", async (string title) =>
+{
+    var viewModel = new CardViewModel
+    {
+        Title = title,
+        Content = "Content from view model",
+        Footer = $"Generated at {DateTime.Now}"
+    };
+    var html = await CardExtensions.RenderCardFromViewModelAsync(viewModel);
     return Results.Content(html, "text/html");
 });
 ```
