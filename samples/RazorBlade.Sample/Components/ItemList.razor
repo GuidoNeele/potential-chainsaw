@@ -1,0 +1,19 @@
+@* A list component for displaying items *@
+
+<div class="item-list">
+    <h3>@Title</h3>
+    <ul>
+        @foreach (var item in Items)
+        {
+            <li>@item</li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Items";
+    
+    [Parameter]
+    public List<string> Items { get; set; } = new();
+}

@@ -1,0 +1,25 @@
+@* A card component perfect for htmx partial responses *@
+
+<div class="card" style="border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 8px;">
+    <h2 style="margin-top: 0;">@Title</h2>
+    <div class="card-body">
+        @Content
+    </div>
+    @if (!string.IsNullOrEmpty(Footer))
+    {
+        <div class="card-footer" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+            @Footer
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Card Title";
+    
+    [Parameter]
+    public string Content { get; set; } = "Card content goes here.";
+    
+    [Parameter]
+    public string Footer { get; set; } = string.Empty;
+}
