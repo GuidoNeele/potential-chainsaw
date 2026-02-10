@@ -219,10 +219,13 @@ dotnet run
 ```
 
 Navigate to:
-- `http://localhost:5000/` - Greeting component
-- `http://localhost:5000/card/YourTitle` - Card component with dynamic title
-- `http://localhost:5000/items` - Shopping list component
-- `http://localhost:5000/demo` - Interactive htmx demo
+- `http://localhost:5018/` - Greeting component
+- `http://localhost:5018/card/YourTitle` - Card component with dynamic title
+- `http://localhost:5018/items` - Shopping list component
+- `http://localhost:5018/demo` - Interactive htmx demo
+
+Or run with HTTPS:
+- `https://localhost:7220/` - Same endpoints over HTTPS
 
 ## Demo Screenshot
 

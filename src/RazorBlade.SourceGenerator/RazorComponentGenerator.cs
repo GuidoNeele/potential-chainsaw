@@ -13,6 +13,9 @@ public class RazorComponentGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        // Get the assembly name to use as root namespace
+        var assemblyName = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? "GeneratedComponents");
+
         // Register a syntax receiver that will be created for each generation pass
         var razorFiles = context.AdditionalTextsProvider
             .Where(file => file.Path.EndsWith(".razor") && !file.Path.Contains("_Imports.razor"))
@@ -23,16 +26,19 @@ public class RazorComponentGenerator : IIncrementalGenerator
             })
             .Collect();
 
-        context.RegisterSourceOutput(razorFiles, (spc, files) =>
+        var combined = razorFiles.Combine(assemblyName);
+
+        context.RegisterSourceOutput(combined, (spc, data) =>
         {
+            var (files, rootNamespace) = data;
             if (files.Length > 0)
             {
-                GenerateHelpers(spc, files);
+                GenerateHelpers(spc, files, rootNamespace);
             }
         });
     }
 
-    private void GenerateHelpers(SourceProductionContext context, System.Collections.Immutable.ImmutableArray<(string Path, string Content)> files)
+    private void GenerateHelpers(SourceProductionContext context, System.Collections.Immutable.ImmutableArray<(string Path, string Content)> files, string rootNamespace)
     {
         var components = new List<ComponentInfo>();
 
@@ -41,7 +47,7 @@ public class RazorComponentGenerator : IIncrementalGenerator
             var fileName = System.IO.Path.GetFileNameWithoutExtension(file.Path);
             var codeBlock = ExtractCodeBlock(file.Content);
             var parameters = ExtractParameters(codeBlock);
-            var namespaceName = ExtractNamespace(file.Path);
+            var namespaceName = ExtractNamespace(file.Path, rootNamespace);
 
             components.Add(new ComponentInfo
             {
@@ -122,10 +128,10 @@ public class RazorComponentGenerator : IIncrementalGenerator
         return parameters;
     }
 
-    private string ExtractNamespace(string filePath)
+    private string ExtractNamespace(string filePath, string rootNamespace)
     {
         // Razor components are generated in format: RootNamespace.SubPath
-        // For Components/Greeting.razor -> RazorBlade.Sample.Components
+        // For Components/Greeting.razor -> [RootNamespace].Components
         var parts = filePath.Replace('\\', '/').Split('/');
         var relevantParts = new List<string>();
         
@@ -141,11 +147,10 @@ public class RazorComponentGenerator : IIncrementalGenerator
         }
 
         // Build the namespace based on project structure
-        // We'll use RazorBlade.Sample.Components as the namespace
         if (componentsIndex >= 0)
         {
             var sb = new StringBuilder();
-            sb.Append("RazorBlade.Sample");
+            sb.Append(rootNamespace);
             
             for (int i = componentsIndex; i < parts.Length - 1; i++)
             {
@@ -160,7 +165,7 @@ public class RazorComponentGenerator : IIncrementalGenerator
             return sb.ToString();
         }
 
-        return "RazorBlade.Sample.Components";
+        return rootNamespace + ".Components";
     }
 
     private string GenerateExtensionMethods(ComponentInfo component)
