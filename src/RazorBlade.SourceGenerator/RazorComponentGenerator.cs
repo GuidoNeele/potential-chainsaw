@@ -239,6 +239,54 @@ public class RazorComponentGenerator : IIncrementalGenerator
         sb.AppendLine(").GetAwaiter().GetResult();");
         sb.AppendLine("        }");
 
+        // Generate method with layout support
+        sb.AppendLine();
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// Renders a {component.Name} component with a layout.");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        /// <typeparam name=\"TLayout\">The layout component type.</typeparam>");
+        
+        foreach (var param in component.Parameters)
+        {
+            sb.AppendLine($"        /// <param name=\"{ToCamelCase(param.Name)}\">The {param.Name} parameter.</param>");
+        }
+        
+        sb.AppendLine($"        /// <param name=\"layoutParameters\">Optional parameters for the layout.</param>");
+        sb.AppendLine("        /// <returns>The rendered HTML as a string.</returns>");
+        sb.Append($"        public static async Task<string> Render{component.Name}WithLayoutAsync<TLayout>(");
+        if (component.Parameters.Count > 0)
+        {
+            sb.Append(paramList);
+            sb.Append(", ");
+        }
+        sb.AppendLine("Dictionary<string, object?>? layoutParameters = null) where TLayout : IComponent");
+        sb.AppendLine("        {");
+        sb.AppendLine("            var parameters = new Dictionary<string, object?>");
+        sb.AppendLine("            {");
+        
+        foreach (var param in component.Parameters)
+        {
+            sb.AppendLine($"                {{ \"{param.Name}\", {ToCamelCase(param.Name)} }},");
+        }
+        
+        sb.AppendLine("            };");
+        sb.AppendLine();
+        sb.AppendLine($"            return await RazorBlade.ComponentRenderer.RenderComponentWithLayoutAsync<{component.Namespace}.{component.Name}, TLayout>(parameters, layoutParameters);");
+        sb.AppendLine("        }");
+
+        // Generate view model method
+        sb.AppendLine();
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// Renders a {component.Name} component from a view model.");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        /// <typeparam name=\"TViewModel\">The view model type.</typeparam>");
+        sb.AppendLine($"        /// <param name=\"viewModel\">The view model instance.</param>");
+        sb.AppendLine("        /// <returns>The rendered HTML as a string.</returns>");
+        sb.AppendLine($"        public static async Task<string> Render{component.Name}FromViewModelAsync<TViewModel>(TViewModel viewModel) where TViewModel : class");
+        sb.AppendLine("        {");
+        sb.AppendLine($"            return await RazorBlade.ComponentRenderer.RenderComponentFromViewModelAsync<{component.Namespace}.{component.Name}, TViewModel>(viewModel);");
+        sb.AppendLine("        }");
+
         sb.AppendLine("    }");
         sb.AppendLine("}");
 

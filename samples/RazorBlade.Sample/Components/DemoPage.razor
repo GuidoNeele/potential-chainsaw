@@ -1,0 +1,28 @@
+@* Demo page component that can be rendered with or without layout *@
+
+<h1>RazorBlade + htmx Demo</h1>
+<p>Click buttons to load partial HTML from Razor components:</p>
+
+<button hx-get="/card/Welcome" hx-target="#content" hx-swap="innerHTML">
+    Load Welcome Card
+</button>
+
+<button hx-get="/card/Features" hx-target="#content" hx-swap="innerHTML">
+    Load Features Card
+</button>
+
+<button hx-get="/items" hx-target="#content" hx-swap="innerHTML">
+    Load Item List
+</button>
+
+<button hx-get="/" hx-target="#content" hx-swap="innerHTML">
+    Load Greeting
+</button>
+
+<div id="content">
+    <p>Click a button above to load content...</p>
+</div>
+
+@code {
+    // No parameters needed for the demo page
+}

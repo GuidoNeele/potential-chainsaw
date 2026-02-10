@@ -1,0 +1,25 @@
+@* Base layout component for full page rendering *@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@Title</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        button { margin: 10px 5px; padding: 10px 20px; cursor: pointer; }
+        #content { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    @Body
+</body>
+</html>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "RazorBlade";
+    
+    [Parameter]
+    public RenderFragment Body { get; set; } = null!;
+}
