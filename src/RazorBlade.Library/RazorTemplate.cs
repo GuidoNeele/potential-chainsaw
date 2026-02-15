@@ -21,7 +21,7 @@ public abstract class RazorTemplate
     /// <summary>
     /// Executes the template and writes the output.
     /// </summary>
-    protected internal abstract Task ExecuteAsync();
+    protected abstract Task ExecuteAsync();
 
     /// <summary>
     /// Renders the template to a string.

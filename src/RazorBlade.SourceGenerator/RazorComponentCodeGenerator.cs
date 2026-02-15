@@ -24,7 +24,12 @@ public class RazorComponentCodeGenerator
         sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using System.Linq;");
         sb.AppendLine("using System.Threading.Tasks;");
-        sb.AppendLine("using RazorBlade;");
+        
+        // Add RazorBlade using if not already in component usings
+        if (!component.Usings.Contains("RazorBlade"))
+        {
+            sb.AppendLine("using RazorBlade;");
+        }
         
         foreach (var u in component.Usings)
         {
@@ -65,15 +70,16 @@ public class RazorComponentCodeGenerator
             sb.AppendLine();
 
         // Generate ExecuteAsync method
-        sb.AppendLine("        protected internal override async Task ExecuteAsync()");
+        sb.AppendLine("        protected override Task ExecuteAsync()");
         sb.AppendLine("        {");
-        sb.AppendLine("            await Task.CompletedTask;"); // Make method truly async
+        sb.AppendLine("            // Synchronous rendering");
         sb.AppendLine();
 
         // Process markup and convert to C# code
         var markupCode = ConvertMarkupToCode(component.MarkupContent);
         sb.Append(markupCode);
 
+        sb.AppendLine("            return Task.CompletedTask;");
         sb.AppendLine("        }");
         sb.AppendLine("    }");
         sb.AppendLine("}");
