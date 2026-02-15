@@ -1,72 +1,65 @@
-using RazorBlade.Extensions;
 using RazorBlade.Sample.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 // Simple endpoint returning a greeting component
-app.MapGet("/", async () =>
+app.MapGet("/", () =>
 {
-    var html = await GreetingExtensions.RenderGreetingAsync("RazorBlade User");
-    return Results.Content(html, "text/html");
+    var greeting = new Greeting { Name = "RazorBlade User" };
+    return Results.Content(greeting.Render(), "text/html");
 });
 
 // Endpoint that returns a card component - perfect for htmx
-app.MapGet("/card/{title}", async (string title) =>
+app.MapGet("/card/{title}", (string title) =>
 {
-    var html = await CardExtensions.RenderCardAsync(
-        title, 
-        "This is dynamically generated content for the card.",
-        $"Generated at {DateTime.Now:HH:mm:ss}");
-    return Results.Content(html, "text/html");
+    var card = new Card
+    {
+        Title = title,
+        Content = "This is dynamically generated content for the card.",
+        Footer = $"Generated at {DateTime.Now:HH:mm:ss}"
+    };
+    return Results.Content(card.Render(), "text/html");
 });
 
 // Endpoint that returns an item list
-app.MapGet("/items", async () =>
+app.MapGet("/items", () =>
 {
-    var items = new List<string> { "Apples", "Bananas", "Oranges", "Grapes" };
-    var html = await ItemListExtensions.RenderItemListAsync("My Shopping List", items);
-    return Results.Content(html, "text/html");
-});
-
-// Demo page as a Razor component with layout
-app.MapGet("/demo", async () =>
-{
-    var layoutParams = new Dictionary<string, object?>
+    var itemList = new ItemList
     {
-        { "Title", "RazorBlade Demo" }
+        Title = "My Shopping List",
+        Items = new List<string> { "Apples", "Bananas", "Oranges", "Grapes" }
     };
-    var html = await DemoPageExtensions.RenderDemoPageWithLayoutAsync<Layout>(layoutParams);
-    return Results.Content(html, "text/html");
+    return Results.Content(itemList.Render(), "text/html");
 });
 
 // Demo page as a partial (no layout) - for htmx partial updates
-app.MapGet("/demo/partial", async () =>
+app.MapGet("/demo", () =>
 {
-    var html = await DemoPageExtensions.RenderDemoPageAsync();
-    return Results.Content(html, "text/html");
+    var demoPage = new DemoPage();
+    return Results.Content(demoPage.Render(), "text/html");
 });
 
-// Example using a view model
-app.MapGet("/card-vm/{title}", async (string title) =>
+// Demo page with layout
+app.MapGet("/demo/full", () =>
 {
-    var viewModel = new CardViewModel
+    var layout = new Layout { Title = "RazorBlade Demo" };
+    var demoPage = new DemoPage();
+    layout.Body = demoPage;
+    return Results.Content(layout.Render(), "text/html");
+});
+
+// Example using object initialization
+app.MapGet("/card-example/{title}", (string title) =>
+{
+    var card = new Card
     {
         Title = title,
-        Content = "Content from view model",
-        Footer = $"View model rendered at {DateTime.Now:HH:mm:ss}"
+        Content = "Content from direct instantiation",
+        Footer = $"Rendered at {DateTime.Now:HH:mm:ss}"
     };
-    var html = await CardExtensions.RenderCardFromViewModelAsync(viewModel);
-    return Results.Content(html, "text/html");
+    return Results.Content(card.Render(), "text/html");
 });
 
 app.Run();
-
-// Example view model class
-public class CardViewModel
-{
-    public string Title { get; set; } = "";
-    public string Content { get; set; } = "";
-    public string Footer { get; set; } = "";
-}
 

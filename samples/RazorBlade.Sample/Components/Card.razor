@@ -1,3 +1,5 @@
+@inherits RazorBlade.HtmlTemplate
+
 @* A card component perfect for htmx partial responses *@
 
 <div class="card" style="border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 8px;">
@@ -13,13 +15,8 @@
     }
 </div>
 
-@code {
-    [Parameter]
+@functions {
     public string Title { get; set; } = "Card Title";
-    
-    [Parameter]
     public string Content { get; set; } = "Card content goes here.";
-    
-    [Parameter]
     public string Footer { get; set; } = string.Empty;
 }

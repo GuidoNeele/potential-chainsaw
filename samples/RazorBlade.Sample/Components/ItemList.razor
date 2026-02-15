@@ -1,3 +1,5 @@
+@inherits RazorBlade.HtmlTemplate
+
 @* A list component for displaying items *@
 
 <div class="item-list">
@@ -10,10 +12,7 @@
     </ul>
 </div>
 
-@code {
-    [Parameter]
+@functions {
     public string Title { get; set; } = "Items";
-    
-    [Parameter]
     public List<string> Items { get; set; } = new();
 }

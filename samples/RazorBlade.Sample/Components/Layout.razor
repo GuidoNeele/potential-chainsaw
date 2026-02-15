@@ -1,3 +1,5 @@
+@inherits RazorBlade.HtmlLayout
+
 @* Base layout component for full page rendering *@
 
 <!DOCTYPE html>
@@ -12,14 +14,10 @@
     </style>
 </head>
 <body>
-    @Body
+    @RenderBody()
 </body>
 </html>
 
-@code {
-    [Parameter]
+@functions {
     public string Title { get; set; } = "RazorBlade";
-    
-    [Parameter]
-    public RenderFragment Body { get; set; } = null!;
 }

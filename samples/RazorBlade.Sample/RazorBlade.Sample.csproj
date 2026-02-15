@@ -5,18 +5,17 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
-    <EnableDefaultRazorComponentItems>true</EnableDefaultRazorComponentItems>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\RazorBlade.Library\RazorBlade.Library.csproj" />
     <ProjectReference Include="..\..\src\RazorBlade.SourceGenerator\RazorBlade.SourceGenerator.csproj" 
                       OutputItemType="Analyzer" 
                       ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="**\*.razor" />
   </ItemGroup>
 
 </Project>
