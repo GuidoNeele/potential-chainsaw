@@ -8,7 +8,6 @@ namespace RazorBlade;
 public abstract class RazorTemplate
 {
     private TextWriter? _output;
-    private StringBuilder? _buffer;
 
     /// <summary>
     /// The TextWriter to write output to.

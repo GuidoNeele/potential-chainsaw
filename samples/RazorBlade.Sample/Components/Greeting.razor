@@ -1,4 +1,4 @@
-@inherits RazorBlade.HtmlTemplate
+@using RazorBlade
 
 @* Simple greeting component *@
 
@@ -7,6 +7,7 @@
     <p>Welcome to RazorBlade components.</p>
 </div>
 
-@functions {
+@code {
+    [Parameter]
     public string Name { get; set; } = "World";
 }

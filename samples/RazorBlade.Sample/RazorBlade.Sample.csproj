@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
+    <EnableDefaultRazorComponentItems>false</EnableDefaultRazorComponentItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +16,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="**\*.razor" />
+    <AdditionalFiles Include="Components\**\*.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Components\**\*.razor" />
+    <Content Remove="Components\**\*.razor" />
+    <None Include="Components\**\*.razor" />
   </ItemGroup>
 
 </Project>
