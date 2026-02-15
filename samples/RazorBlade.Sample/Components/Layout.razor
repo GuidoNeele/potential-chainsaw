@@ -1,0 +1,19 @@
+@using RazorBlade
+@inherits RazorBlade.HtmlLayout
+
+@* Base layout component for full page rendering *@
+
+<html>
+<head>
+    <title>@Title</title>
+</head>
+<body>
+    <h1>RazorBlade Demo</h1>
+    <div>Body content goes here</div>
+</body>
+</html>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "RazorBlade";
+}

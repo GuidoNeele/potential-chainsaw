@@ -1,0 +1,20 @@
+@using RazorBlade
+
+@* A list component for displaying items *@
+
+<div class="item-list">
+    <h3>@Title</h3>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Items";
+    
+    [Parameter]
+    public List<string> Items { get; set; } = new();
+}

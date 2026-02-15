@@ -1,0 +1,13 @@
+@using RazorBlade
+
+@* Simple greeting component *@
+
+<div class="greeting">
+    <h1>Hello, @Name!</h1>
+    <p>Welcome to RazorBlade components.</p>
+</div>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = "World";
+}
