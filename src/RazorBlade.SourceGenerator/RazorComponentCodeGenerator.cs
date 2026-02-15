@@ -137,85 +137,112 @@ public class RazorComponentCodeGenerator
             if (trimmedLine == "*@")
                 continue;
 
-            // Process the line
-            var processedLine = ProcessMarkupLine(trimmedLine);
-            
-            if (!string.IsNullOrWhiteSpace(processedLine))
-            {
-                sb.AppendLine(indent + processedLine);
-            }
+            // Process the line and generate Write/WriteLiteral calls
+            ProcessMarkupLine(trimmedLine, sb, indent);
         }
 
         return sb.ToString();
     }
 
-    private string ProcessMarkupLine(string line)
+    private void ProcessMarkupLine(string line, StringBuilder output, string indent)
     {
-        var sb = new StringBuilder();
         var i = 0;
+        var literalBuffer = new StringBuilder();
 
         while (i < line.Length)
         {
             // Check for @ expressions
             if (line[i] == '@')
             {
-                i++;
+                // Output any accumulated literal content
+                if (literalBuffer.Length > 0)
+                {
+                    output.AppendLine($"{indent}WriteLiteral(\"{EscapeString(literalBuffer.ToString())}\");");
+                    literalBuffer.Clear();
+                }
+
+                i++; // Skip the @
                 
                 // @@ escapes to single @
                 if (i < line.Length && line[i] == '@')
                 {
-                    if (sb.Length > 0)
-                    {
-                        sb.Insert(0, "WriteLiteral(\"");
-                        sb.Append("\");");
-                        return sb.ToString();
-                    }
+                    literalBuffer.Append('@');
                     i++;
                     continue;
                 }
 
-                // Check for @ followed by identifier or expression
-                if (i < line.Length)
+                // @ followed by control structure
+                if (i < line.Length && char.IsLetter(line[i]))
                 {
-                    // Output any literal content before the expression
-                    if (sb.Length > 0)
+                    // Check for @if, @foreach, @for, @while, etc.
+                    var keyword = ExtractKeyword(line, i);
+                    if (keyword == "if" || keyword == "foreach" || keyword == "for" || keyword == "while")
                     {
-                        var literal = sb.ToString();
-                        sb.Clear();
-                        sb.Append($"WriteLiteral(\"{EscapeString(literal)}\");");
-                        sb.AppendLine();
-                        sb.Append("                ");
+                        // Extract the condition/expression up to {
+                        var startPos = i + keyword.Length;
+                        var endPos = line.IndexOf('{', startPos);
+                        if (endPos > 0)
+                        {
+                            var condition = line.Substring(startPos, endPos - startPos).Trim();
+                            output.AppendLine($"{indent}{keyword} ({condition})");
+                            output.AppendLine($"{indent}{{");
+                            i = endPos + 1;
+                            continue;
+                        }
                     }
-
-                    // Extract the expression
-                    var expr = ExtractExpression(line, i);
-                    sb.Append($"Write({expr.Expression});");
-                    i = expr.EndIndex;
-                    
-                    // Check if there's more content after the expression
-                    if (i < line.Length)
+                    else if (line[i] == '}')
                     {
-                        sb.AppendLine();
-                        sb.Append("                ");
-                        sb.Clear();
+                        // Closing brace
+                        output.AppendLine($"{indent}}}");
+                        i++;
+                        continue;
                     }
                 }
+
+                // Extract expression
+                var expr = ExtractExpression(line, i);
+                if (!string.IsNullOrEmpty(expr.Expression))
+                {
+                    output.AppendLine($"{indent}Write({expr.Expression});");
+                    i = expr.EndIndex;
+                }
+            }
+            else if (line[i] == '}' && literalBuffer.Length == 0)
+            {
+                // Standalone closing brace (from @if, @foreach, etc.)
+                output.AppendLine($"{indent}}}");
+                i++;
+            }
+            else if (line[i] == '{' && i > 0 && line[i-1] != '@')
+            {
+                // Opening brace (from @if, @foreach, etc.) - already handled above
+                i++;
             }
             else
             {
-                sb.Append(line[i]);
+                // Regular character - add to literal buffer
+                literalBuffer.Append(line[i]);
                 i++;
             }
         }
 
-        // If we have remaining literal content
-        if (sb.Length > 0)
+        // Output any remaining literal content
+        if (literalBuffer.Length > 0)
         {
-            var content = sb.ToString();
-            return $"WriteLiteral(\"{EscapeString(content)}\");";
+            output.AppendLine($"{indent}WriteLiteral(\"{EscapeString(literalBuffer.ToString())}\");");
         }
+    }
 
-        return string.Empty;
+    private string ExtractKeyword(string line, int start)
+    {
+        var sb = new StringBuilder();
+        var i = start;
+        while (i < line.Length && char.IsLetter(line[i]))
+        {
+            sb.Append(line[i]);
+            i++;
+        }
+        return sb.ToString();
     }
 
     private (string Expression, int EndIndex) ExtractExpression(string line, int start)
